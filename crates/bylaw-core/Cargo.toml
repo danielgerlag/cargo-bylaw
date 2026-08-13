@@ -1,0 +1,23 @@
+[package]
+name = "bylaw-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Analyzer-independent architecture graph and rule engine for Cargo Bylaw"
+
+[dependencies]
+camino.workspace = true
+indexmap.workspace = true
+petgraph.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

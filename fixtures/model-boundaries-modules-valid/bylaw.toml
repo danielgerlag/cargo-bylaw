@@ -1,0 +1,48 @@
+version = 1
+
+[selectors.domain]
+modules = ["model_boundaries_modules_valid::domain::**"]
+
+[selectors.persistence]
+modules = ["model_boundaries_modules_valid::persistence::**"]
+
+[selectors.contract]
+modules = ["model_boundaries_modules_valid::contract::**"]
+
+[selectors.api]
+modules = ["model_boundaries_modules_valid::api::**"]
+
+[selectors.models]
+modules = [
+    "model_boundaries_modules_valid::domain::**",
+    "model_boundaries_modules_valid::persistence::**",
+    "model_boundaries_modules_valid::contract::**",
+    "model_boundaries_modules_valid::api::**",
+]
+
+[[rule]]
+id = "domain-is-internal"
+kind = "forbid-dependencies"
+from = "domain"
+to = ["persistence", "contract", "api"]
+scope = "actual"
+[[rule]]
+id = "persistence-does-not-use-contract"
+kind = "forbid-dependencies"
+from = "persistence"
+to = ["contract", "api"]
+scope = "actual"
+
+[[rule]]
+id = "api-does-not-use-persistence"
+kind = "forbid-dependencies"
+from = "api"
+to = "persistence"
+scope = "actual"
+
+[[rule]]
+id = "model-modules-are-acyclic"
+kind = "no-cycles"
+within = "models"
+grouping = "modules"
+scope = "actual"

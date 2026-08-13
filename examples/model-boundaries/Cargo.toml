@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "crates/architecture-tests",
+    "crates/shop-api",
+    "crates/shop-app",
+    "crates/shop-contract",
+    "crates/shop-domain",
+    "crates/shop-persistence",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+
+[workspace.dependencies]
+shop-api = { path = "crates/shop-api" }
+shop-contract = { path = "crates/shop-contract" }
+shop-domain = { path = "crates/shop-domain" }
+shop-persistence = { path = "crates/shop-persistence" }

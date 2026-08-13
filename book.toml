@@ -1,0 +1,16 @@
+[book]
+title = "Cargo Bylaw"
+description = "Architecture enforcement for Rust"
+authors = ["Cargo Bylaw contributors"]
+language = "en"
+src = "docs"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+site-url = "/cargo-bylaw/"
+no-section-label = true
+default-theme = "rust"
+preferred-dark-theme = "ayu"

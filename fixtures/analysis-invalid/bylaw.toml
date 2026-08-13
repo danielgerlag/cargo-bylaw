@@ -1,0 +1,7 @@
+version = 1
+
+[analysis]
+manifest_path = "missing/Cargo.toml"
+
+[output]
+format = "json"

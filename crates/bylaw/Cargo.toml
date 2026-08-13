@@ -1,0 +1,25 @@
+[package]
+name = "bylaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Architecture enforcement test framework for Rust"
+
+[dependencies]
+bylaw-analyzer = { version = "0.1.0", path = "../bylaw-analyzer" }
+bylaw-config = { version = "0.1.0", path = "../bylaw-config" }
+bylaw-core = { version = "0.1.0", path = "../bylaw-core" }
+thiserror.workspace = true
+
+[dev-dependencies]
+camino.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,95 @@
+version = 1
+
+[analysis]
+manifest_path = "Cargo.toml"
+packages = [
+    "shop-domain",
+    "shop-persistence",
+    "shop-contract",
+    "shop-api",
+    "shop-app",
+]
+
+[selectors.domain]
+packages = ["shop-domain"]
+
+[selectors.persistence]
+packages = ["shop-persistence"]
+
+[selectors.contract]
+packages = ["shop-contract"]
+
+[selectors.api]
+packages = ["shop-api"]
+
+[selectors.app]
+packages = ["shop-app"]
+
+[selectors.model-crates]
+packages = ["shop-domain", "shop-persistence", "shop-contract", "shop-api"]
+
+[[rule]]
+id = "domain-is-internal"
+kind = "forbid-dependencies"
+from = "domain"
+to = ["persistence", "contract", "api", "app"]
+scope = "both"
+because = "the internal domain model must not leak boundary representations"
+
+[[rule]]
+id = "contract-is-boundary-only"
+kind = "forbid-dependencies"
+from = "contract"
+to = ["domain", "persistence", "api", "app"]
+scope = "both"
+because = "the public contract must not expose internal implementation models"
+
+[[rule]]
+id = "persistence-does-not-leak-transport-models"
+kind = "forbid-dependencies"
+from = "persistence"
+to = ["contract", "api", "app"]
+scope = "both"
+
+[[rule]]
+id = "api-does-not-use-persistence-models"
+kind = "forbid-dependencies"
+from = "api"
+to = ["persistence", "app"]
+scope = "both"
+
+[[rule]]
+id = "model-crates-are-acyclic"
+kind = "no-cycles"
+within = "model-crates"
+grouping = "crates"
+scope = "both"
+
+[[rule]]
+id = "model-layers"
+kind = "layers"
+scope = "both"
+
+[[rule.layers]]
+name = "domain"
+selector = "domain"
+
+[[rule.layers]]
+name = "persistence"
+selector = "persistence"
+
+[[rule.layers]]
+name = "contract"
+selector = "contract"
+
+[[rule.layers]]
+name = "api"
+selector = "api"
+
+[[rule.dependencies]]
+from = "persistence"
+may_depend_on = ["domain"]
+
+[[rule.dependencies]]
+from = "api"
+may_depend_on = ["domain", "contract"]

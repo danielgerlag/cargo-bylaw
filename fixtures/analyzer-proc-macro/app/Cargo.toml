@@ -1,0 +1,8 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dep-lib = { path = "../dep-lib" }
+make-dep = { path = "../make-dep" }

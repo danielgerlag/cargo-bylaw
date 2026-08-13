@@ -1,0 +1,23 @@
+[package]
+name = "bylaw-config"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Versioned bylaw.toml configuration for Cargo Bylaw"
+
+[dependencies]
+bylaw-core = { version = "0.1.0", path = "../bylaw-core" }
+camino.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+toml.workspace = true
+
+[lints]
+workspace = true

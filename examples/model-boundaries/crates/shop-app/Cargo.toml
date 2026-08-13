@@ -1,0 +1,11 @@
+[package]
+name = "shop-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+shop-api.workspace = true
+shop-contract.workspace = true
+shop-domain.workspace = true
+shop-persistence.workspace = true

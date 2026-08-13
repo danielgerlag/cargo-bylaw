@@ -1,0 +1,10 @@
+[package]
+name = "make-dep"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+dep-lib = { path = "../dep-lib" }

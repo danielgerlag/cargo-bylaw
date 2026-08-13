@@ -1,0 +1,15 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+helper = { path = "../helper" }
+itoa_alias = { package = "itoa", version = "1.0" }
+
+[build-dependencies]
+build-helper = { path = "../build-helper" }
+
+[dev-dependencies]
+dev-helper = { path = "../dev-helper" }

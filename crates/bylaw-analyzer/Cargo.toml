@@ -1,0 +1,29 @@
+[package]
+name = "bylaw-analyzer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Stable-Rust semantic Cargo workspace importer for Cargo Bylaw"
+
+[dependencies]
+bylaw-core = { version = "0.1.0", path = "../bylaw-core" }
+camino.workspace = true
+cargo_metadata.workspace = true
+indexmap.workspace = true
+ra_ap_hir.workspace = true
+ra_ap_ide.workspace = true
+ra_ap_load-cargo.workspace = true
+ra_ap_project_model.workspace = true
+ra_ap_syntax.workspace = true
+ra_ap_vfs.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

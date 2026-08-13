@@ -1,0 +1,71 @@
+version = 1
+
+[analysis]
+manifest_path = "Cargo.toml"
+packages = [
+    "bylaw-core",
+    "bylaw-analyzer",
+    "bylaw-config",
+    "bylaw",
+    "cargo-bylaw",
+]
+build_scripts = true
+
+[selectors.core]
+packages = ["bylaw-core"]
+
+[selectors.analyzer]
+packages = ["bylaw-analyzer"]
+
+[selectors.config]
+packages = ["bylaw-config"]
+
+[selectors.facade]
+packages = ["bylaw"]
+
+[selectors.cli]
+packages = ["cargo-bylaw"]
+
+[selectors.workspace]
+packages = [
+    "bylaw-core",
+    "bylaw-analyzer",
+    "bylaw-config",
+    "bylaw",
+    "cargo-bylaw",
+]
+
+[[rule]]
+id = "core-is-independent"
+kind = "forbid-dependencies"
+from = "core"
+to = ["analyzer", "config", "facade", "cli"]
+scope = "both"
+
+[[rule]]
+id = "analyzer-does-not-depend-on-upper-layers"
+kind = "forbid-dependencies"
+from = "analyzer"
+to = ["config", "facade", "cli"]
+scope = "both"
+
+[[rule]]
+id = "config-does-not-depend-on-upper-layers"
+kind = "forbid-dependencies"
+from = "config"
+to = ["analyzer", "facade", "cli"]
+scope = "both"
+
+[[rule]]
+id = "facade-does-not-depend-on-cli"
+kind = "forbid-dependencies"
+from = "facade"
+to = "cli"
+scope = "both"
+
+[[rule]]
+id = "workspace-crates-are-acyclic"
+kind = "no-cycles"
+within = "workspace"
+grouping = "crates"
+scope = "both"
