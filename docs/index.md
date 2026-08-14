@@ -23,9 +23,19 @@ The initial rule library supports:
 Analysis runs on stable Rust and fails closed when semantic information is
 incomplete unless the user explicitly allows warnings.
 
+## Guardrails for coding agents
+
+Cargo Bylaw gives coding agents an executable definition of the architecture.
+Agents can run the same check as CI, receive source-level dependency violations,
+and revise their changes instead of relying on architecture prose alone.
+
+See [Keeping coding agents aligned](coding-agents.md) for a recommended agent
+instruction, workflow, and CI gate.
+
 ## Documentation
 
 - Start with [Getting started](getting-started.md).
+- Add [guardrails for coding agents](coding-agents.md).
 - See the runnable [model boundaries example](examples.md).
 - Read [Semantic analysis](analysis.md) for cfg, macro, and build-script behavior.
 - Extend the framework with [Custom rules](extensions.md).

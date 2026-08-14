@@ -2,6 +2,7 @@
 
 - [Cargo Bylaw](index.md)
 - [Getting started](getting-started.md)
+- [Keeping coding agents aligned](coding-agents.md)
 - [Model boundaries example](examples.md)
 - [Architecture](architecture.md)
 - [Configuration](configuration.md)

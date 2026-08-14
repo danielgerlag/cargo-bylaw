@@ -74,6 +74,16 @@ fn architecture_is_valid() -> Result<(), Box<dyn std::error::Error>> {
 See [`examples/model-boundaries`](examples/model-boundaries) for a complete
 domain, persistence, contract, API, and composition-root example.
 
+## Coding-agent guardrails
+
+Cargo Bylaw turns architecture guidance into an executable completion condition
+for coding agents. Require agents to run `cargo bylaw check` before finishing a
+change, and enforce the same command in CI so boundary violations cannot be
+merged.
+
+See [Keeping coding agents aligned](docs/coding-agents.md) for a ready-to-copy
+agent instruction and recommended workflow.
+
 ## Documentation site
 
 The guide is an mdBook deployed through GitHub Pages. Build it locally with:
@@ -86,6 +96,7 @@ mdbook serve --open
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [Keeping coding agents aligned](docs/coding-agents.md)
 - [Configuration](docs/configuration.md)
 - [Custom rules](docs/extensions.md)
 - [Semantic analysis](docs/analysis.md)
