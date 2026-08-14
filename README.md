@@ -105,9 +105,4 @@ mdbook serve --open
 
 ## License
 
-Licensed under either of:
-
-- [Apache License, Version 2.0](https://github.com/danielgerlag/cargo-bylaw/blob/main/LICENSE-APACHE)
-- [MIT License](https://github.com/danielgerlag/cargo-bylaw/blob/main/LICENSE-MIT)
-
-at your option.
+Licensed under the [MIT License](https://github.com/danielgerlag/cargo-bylaw/blob/main/LICENSE-MIT).
