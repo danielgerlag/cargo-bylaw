@@ -7,6 +7,32 @@ graph and rule engine.
 Rules can constrain dependencies between modules, workspace crates, and external
 crates, define allowed layer directions, and reject dependency cycles.
 
+## Install
+
+```console
+cargo install cargo-bylaw
+cargo bylaw --version
+```
+
+Cargo installs subcommands into `$CARGO_HOME/bin`, which defaults to
+`~/.cargo/bin`. If Cargo reports `no such command: bylaw`, ensure that directory
+is on `PATH` and restart the shell:
+
+```console
+export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
+```
+
+Run architecture checks with the required `check` subcommand:
+
+```console
+cargo bylaw check
+```
+
+See the [Getting Started guide](docs/getting-started.md) for Windows PATH
+instructions and library installation.
+
+## Configure
+
 ```toml
 version = 1
 
@@ -22,10 +48,6 @@ kind = "forbid-dependencies"
 from = "domain"
 to = "persistence"
 scope = "actual"
-```
-
-```console
-cargo bylaw check
 ```
 
 The same rule model is available from normal Rust tests:

@@ -9,6 +9,9 @@ cargo install cargo-bylaw
 cargo bylaw check
 ```
 
+If Cargo cannot find the installed subcommand, follow the
+[PATH troubleshooting steps](getting-started.md#install-the-cli).
+
 The initial rule library supports:
 
 - Forbidden and allow-listed dependencies.

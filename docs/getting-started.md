@@ -4,6 +4,25 @@
 
 ```console
 cargo install cargo-bylaw
+cargo bylaw --version
+```
+
+Cargo discovers installed subcommands through `PATH`. Cargo installs binaries
+into `$CARGO_HOME/bin`, which defaults to `~/.cargo/bin`.
+
+If Cargo reports `no such command: bylaw` on macOS or Linux, add the directory
+to `PATH`, persist the same setting in the shell profile, and restart the shell:
+
+```console
+export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
+cargo bylaw --version
+```
+
+For PowerShell on Windows:
+
+```powershell
+$env:Path += ";$HOME\.cargo\bin"
+cargo bylaw --version
 ```
 
 For architecture rules written as Rust tests, add the library as a development
@@ -36,7 +55,8 @@ scope = "both"
 because = "domain policy must not depend on infrastructure"
 ```
 
-Run the check:
+Run the check. The `check` subcommand is required; `cargo bylaw` alone does not
+run architecture rules.
 
 ```console
 cargo bylaw check
