@@ -1,0 +1,22 @@
+version = 1
+
+[analysis]
+manifest_path = "Cargo.toml"
+packages = ["app"]
+target_kinds = ["binary"]
+incomplete = "deny"
+proc_macros = true
+build_scripts = true
+
+[selectors.expanded]
+modules = ["app::expanded"]
+
+[selectors.dependency]
+packages = ["dep-lib"]
+
+[[rule]]
+id = "forbid-expanded-dependency"
+kind = "forbid-dependencies"
+from = "expanded"
+to = "dependency"
+scope = "actual"

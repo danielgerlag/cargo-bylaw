@@ -20,7 +20,7 @@ use ra_ap_ide::RootDatabase;
 use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice, load_workspace_at};
 use ra_ap_project_model::{CargoConfig, CargoFeatures, RustLibSource};
 use ra_ap_syntax::{
-    AstNode, SyntaxKind, SyntaxNode, TextRange, ast, ast::HasAttrs, ast::HasVisibility,
+    AstNode, SyntaxKind, SyntaxNode, TextRange, WalkEvent, ast, ast::HasAttrs, ast::HasVisibility,
 };
 use ra_ap_vfs::{FileId, Vfs};
 use std::collections::{HashMap, HashSet};
@@ -412,24 +412,69 @@ impl Analyzer {
         root: SyntaxNode,
         visited_expansions: &mut HashSet<hir::HirFileId>,
     ) -> Result<(), AnalyzerError> {
-        for path in std::iter::once(root.clone())
-            .chain(root.descendants())
-            .filter_map(ast::Path::cast)
-            .filter(is_terminal_path)
-            .filter(|path| syntax_is_cfg_enabled(path.syntax(), cfg_options))
-        {
-            if is_macro_path(&path) {
+        let mut preorder = root.preorder();
+        while let Some(event) = preorder.next() {
+            let WalkEvent::Enter(node) = event else {
+                continue;
+            };
+            if !syntax_is_cfg_enabled(&node, cfg_options) {
+                preorder.skip_subtree();
                 continue;
             }
-            self.record_path_reference(session, sema, target, &path)?;
-        }
 
-        for macro_call in std::iter::once(root.clone())
-            .chain(root.descendants())
-            .filter_map(ast::MacroCall::cast)
-            .filter(|macro_call| syntax_is_cfg_enabled(macro_call.syntax(), cfg_options))
-        {
-            self.record_macro_reference(session, sema, target, &macro_call)?;
+            if let Some(item) = ast::Item::cast(node.clone())
+                && let Some(expansion) = sema.expand_attr_macro(&item)
+            {
+                // Attribute macros replace the item; its original body has no semantic scope.
+                preorder.skip_subtree();
+                let macro_def = sema.resolve_attr_macro_call(&item);
+                let name = macro_def
+                    .map(|macro_def| macro_def.name(&session.db).as_str().to_owned())
+                    .unwrap_or_else(|| "<attribute-macro>".to_owned());
+                self.record_macro_reference(session, sema, target, &node, &name, macro_def)?;
+                if let Some(error) = expansion.err {
+                    let error = error.render_to_string(&session.db);
+                    let diagnostic = self.incomplete_diagnostic(
+                        "analyzer.unavailable-expansion",
+                        format!("attribute macro expansion for `{name}` failed: {error}"),
+                    );
+                    self.add_spanned_diagnostic(session, sema, diagnostic, &node)?;
+                }
+                if visited_expansions.insert(expansion.value.file_id) {
+                    self.walk_syntax_tree(
+                        session,
+                        sema,
+                        target,
+                        cfg_options,
+                        expansion.value.value,
+                        visited_expansions,
+                    )?;
+                }
+                continue;
+            }
+
+            if let Some(path) = ast::Path::cast(node.clone())
+                && is_terminal_path(&path)
+                && !is_macro_path(&path)
+            {
+                self.record_path_reference(session, sema, target, &path)?;
+            }
+
+            let Some(macro_call) = ast::MacroCall::cast(node) else {
+                continue;
+            };
+            let name = macro_call
+                .path()
+                .map(|path| path.syntax().text().to_string())
+                .unwrap_or_else(|| "<unknown-macro>".to_owned());
+            self.record_macro_reference(
+                session,
+                sema,
+                target,
+                macro_call.syntax(),
+                &name,
+                sema.resolve_macro_call(&macro_call),
+            )?;
             if let Some(expanded) = sema.expand_macro_call(&macro_call) {
                 if expanded.value.kind() == SyntaxKind::ERROR
                     || expanded.value.text().to_string().trim().is_empty()
@@ -560,37 +605,25 @@ impl Analyzer {
         session: &RaSession,
         sema: &Semantics<'_, RootDatabase>,
         target: &WorkspaceTarget,
-        macro_call: &ast::MacroCall,
+        node: &SyntaxNode,
+        name: &str,
+        macro_def: Option<hir::Macro>,
     ) -> Result<(), AnalyzerError> {
-        let Some(origin) =
-            self.origin_component_for_node(session, sema, target, macro_call.syntax())
-        else {
+        let Some(origin) = self.origin_component_for_node(session, sema, target, node) else {
             let diagnostic = self.incomplete_diagnostic(
                 "analyzer.unmapped-origin",
-                format!(
-                    "could not determine an owning module for macro `{}`",
-                    macro_call
-                        .path()
-                        .map(|path| path.syntax().text().to_string())
-                        .unwrap_or_else(|| "<unknown-macro>".to_owned())
-                ),
+                format!("could not determine an owning module for macro `{name}`"),
             );
-            self.add_spanned_diagnostic(session, sema, diagnostic, macro_call.syntax())?;
+            self.add_spanned_diagnostic(session, sema, diagnostic, node)?;
             return Ok(());
         };
 
-        let Some(macro_def) = sema.resolve_macro_call(macro_call) else {
+        let Some(macro_def) = macro_def else {
             let diagnostic = self.incomplete_diagnostic(
                 "analyzer.unresolved-macro",
-                format!(
-                    "could not resolve macro `{}`",
-                    macro_call
-                        .path()
-                        .map(|path| path.syntax().text().to_string())
-                        .unwrap_or_else(|| "<unknown-macro>".to_owned())
-                ),
+                format!("could not resolve macro `{name}`"),
             );
-            self.add_spanned_diagnostic(session, sema, diagnostic, macro_call.syntax())?;
+            self.add_spanned_diagnostic(session, sema, diagnostic, node)?;
             return Ok(());
         };
 
@@ -599,15 +632,9 @@ impl Analyzer {
         else {
             let diagnostic = self.incomplete_diagnostic(
                 "analyzer.unmapped-macro",
-                format!(
-                    "resolved macro `{}` but could not map it to a graph component",
-                    macro_call
-                        .path()
-                        .map(|path| path.syntax().text().to_string())
-                        .unwrap_or_else(|| "<unknown-macro>".to_owned())
-                ),
+                format!("resolved macro `{name}` but could not map it to a graph component"),
             );
-            self.add_spanned_diagnostic(session, sema, diagnostic, macro_call.syntax())?;
+            self.add_spanned_diagnostic(session, sema, diagnostic, node)?;
             return Ok(());
         };
 
@@ -616,13 +643,8 @@ impl Analyzer {
         }
 
         let evidence = DependencyEvidence::new(DependencyKind::Macro)
-            .with_span(span_for_syntax(self, session, sema, macro_call.syntax())?)
-            .with_description(
-                macro_call
-                    .path()
-                    .map(|path| path.syntax().text().to_string())
-                    .unwrap_or_else(|| "<unknown-macro>".to_owned()),
-            );
+            .with_span(span_for_syntax(self, session, sema, node)?)
+            .with_description(name);
         self.graph
             .add_dependency(origin, target_component, DependencyScope::Actual, evidence)?;
         Ok(())

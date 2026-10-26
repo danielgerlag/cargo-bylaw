@@ -256,6 +256,66 @@ fn enables_feature_gated_modules_when_features_are_requested() {
 }
 
 #[test]
+fn resolves_paths_and_macros_inside_attribute_expansions() {
+    let mut options = AnalysisOptions::new(fixture_manifest("analyzer-proc-macro"));
+    options.selected_package_names = vec!["app".to_owned()];
+    options.included_target_kinds = target_kinds([TargetKind::Binary]);
+    options.enable_proc_macros = true;
+    options.enable_build_scripts = true;
+
+    let graph = analyze_workspace(&options).expect("attribute macro analysis should succeed");
+    assert!(
+        graph.diagnostics().is_empty(),
+        "unexpected diagnostics: {:?}",
+        graph.diagnostics()
+    );
+
+    let app_crate = find_crate_id(&graph, "app", TargetKind::Binary);
+    let dep_root = ComponentId::Module(find_module_id(
+        &graph,
+        &find_crate_id(&graph, "dep-lib", TargetKind::Library),
+        "dep_lib",
+    ));
+    for module in ["app::plain", "app::expanded"] {
+        let origin = ComponentId::Module(find_module_id(&graph, &app_crate, module));
+        assert!(
+            has_toolchain_actual_edge(&graph, &origin),
+            "expected toolchain dependencies from {module}"
+        );
+        assert!(
+            edge_kinds(&graph, &origin, &dep_root, DependencyScope::Actual)
+                .contains(&DependencyKind::Path),
+            "expected dependency inside format! from {module}"
+        );
+        assert!(
+            graph.edges().any(|edge| {
+                edge.origin == origin
+                    && edge.scope == DependencyScope::Actual
+                    && edge.evidence.iter().any(|evidence| {
+                        evidence.kind == DependencyKind::Call
+                            && evidence.description.as_deref() == Some("Arc::from")
+                            && evidence.span.as_ref().is_some_and(|span| {
+                                span.path.ends_with(if module == "app::plain" {
+                                    "app/src/plain.rs"
+                                } else {
+                                    "app/src/expanded.rs"
+                                })
+                            })
+                    })
+            }),
+            "expected Arc::from call with original source span from {module}"
+        );
+    }
+    let expanded = ComponentId::Module(find_module_id(&graph, &app_crate, "app::expanded"));
+    let async_trait = find_external_component_id(&graph, "async-trait");
+    assert!(
+        edge_kinds(&graph, &expanded, &async_trait, DependencyScope::Actual)
+            .contains(&DependencyKind::Macro),
+        "expected attribute macro dependency"
+    );
+}
+
+#[test]
 fn proc_macro_support_smoke_test_reports_or_resolves_expansion() {
     let mut options = AnalysisOptions::new(fixture_manifest("analyzer-proc-macro"));
     options.selected_package_names = vec!["app".to_owned()];
