@@ -100,7 +100,7 @@ checksum = "36f64beae40a84da1b4b26ff2761a5b895c12adc41dc25aaee1c4f2bbfe97a6e"
 
 [[package]]
 name = "bylaw"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bylaw-analyzer",
  "bylaw-config",
@@ -111,7 +111,7 @@ dependencies = [
 
 [[package]]
 name = "bylaw-analyzer"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bylaw-core",
  "camino",
@@ -128,7 +128,7 @@ dependencies = [
 
 [[package]]
 name = "bylaw-config"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bylaw-core",
  "camino",
@@ -139,7 +139,7 @@ dependencies = [
 
 [[package]]
 name = "bylaw-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "camino",
  "indexmap",
@@ -165,7 +165,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-bylaw"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bylaw",
  "camino",

@@ -13,7 +13,7 @@ categories.workspace = true
 description = "Stable-Rust semantic Cargo workspace importer for Cargo Bylaw"
 
 [dependencies]
-bylaw-core = { version = "0.1.0", path = "../bylaw-core" }
+bylaw-core = { version = "0.1.1", path = "../bylaw-core" }
 camino.workspace = true
 cargo_metadata.workspace = true
 indexmap.workspace = true
