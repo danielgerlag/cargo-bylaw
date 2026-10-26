@@ -8,6 +8,12 @@ The importer resolves aliases, re-exports, qualified paths, active `cfg`
 branches, declarative macros, workspace dependencies, renamed dependencies, and
 external/toolchain crates where rust-analyzer provides a semantic target.
 
+With proc-macro and build-script support enabled, attribute macros such as
+`#[async_trait]` are analyzed through their expansions rather than the replaced
+source items. Dependencies in expanded bodies remain subject to architecture
+rules, and unresolved paths or failed expansions still produce incomplete-analysis
+diagnostics.
+
 ## Configuration-dependent graphs
 
 Features, target triples, target kinds, build-script output, and proc-macro

@@ -1,0 +1,27 @@
+version = 1
+
+[analysis]
+manifest_path = "Cargo.toml"
+packages = ["app"]
+target_kinds = ["binary"]
+incomplete = "deny"
+proc_macros = true
+build_scripts = true
+
+[selectors.project]
+packages = ["app"]
+
+[selectors.dependencies]
+packages = ["dep-lib", "make-dep"]
+
+[selectors.async-trait]
+external_crates = ["async_trait"]
+
+[[rule]]
+id = "approved-dependencies"
+kind = "only-dependencies"
+from = "project"
+allowed = ["project", "dependencies", "async-trait"]
+scope = "both"
+allow_self = true
+allow_toolchain = true
